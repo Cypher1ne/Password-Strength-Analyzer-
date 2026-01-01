@@ -3,269 +3,957 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Strength Analyzer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Password Policy Evaluation & Authentication Risk Analysis Tool</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .strength-bar {
-            transition: width 0.5s ease;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #111827;
+            color: #f9fafb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        body.dark-mode .card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            color: #2563eb;
+        }
+
+        body.dark-mode .header-icon {
+            color: #60a5fa;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        body.dark-mode .subtitle {
+            color: #9ca3af;
+        }
+
+        .theme-toggle {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: #374151;
+        }
+
+        .theme-toggle:hover {
+            background: #d1d5db;
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: #4b5563;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+
+        body.dark-mode .info-box {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: #1e40af;
+        }
+
+        .info-icon {
+            width: 18px;
+            height: 18px;
+            color: #2563eb;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        body.dark-mode .info-icon {
+            color: #60a5fa;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        body.dark-mode .info-text {
+            color: #93c5fd;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="password"] {
+            background: #374151;
+            border-color: #4b5563;
+            color: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .toggle-visibility {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 4px;
+        }
+
+        body.dark-mode .toggle-visibility {
+            color: #9ca3af;
+        }
+
+        .slider-group {
+            margin-top: 16px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #d1d5db;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        body.dark-mode input[type="range"] {
+            background: #4b5563;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2563eb;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        body.dark-mode .slider-label {
+            color: #9ca3af;
+        }
+
+        .risk-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .risk-level {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .risk-level svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .risk-level-text {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .risk-critical { color: #dc2626; }
+        .risk-high { color: #ea580c; }
+        .risk-medium { color: #ca8a04; }
+        .risk-low { color: #16a34a; }
+
+        .metric-list {
+            list-style: none;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .metric-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .check-icon { color: #16a34a; }
+        .x-icon { color: #dc2626; }
+        .warn-icon { color: #ca8a04; }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode h3 {
+            color: #e5e7eb;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fde047;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        body.dark-mode .warning-box {
+            background: rgba(202, 138, 4, 0.2);
+            border-color: #ca8a04;
+        }
+
+        .warning-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #854d0e;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .warning-title {
+            color: #fde047;
+        }
+
+        .warning-text {
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        body.dark-mode .warning-text {
+            color: #fef08a;
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .time-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        body.dark-mode .time-card {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        .time-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+
+        body.dark-mode .time-value {
+            color: white;
+        }
+
+        .time-description {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        body.dark-mode .time-description {
+            color: #9ca3af;
+        }
+
+        .note-text {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 16px;
+        }
+
+        body.dark-mode .note-text {
+            color: #9ca3af;
+        }
+
+        .technique-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        body.dark-mode .technique-card {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        .technique-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .risk-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-high {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .badge-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .technique-description {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .technique-description {
+            color: #d1d5db;
+        }
+
+        .technique-meta {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        body.dark-mode .technique-meta {
+            color: #9ca3af;
+        }
+
+        .recommendation-section {
+            margin-bottom: 24px;
+        }
+
+        .recommendation-section h3 {
+            color: #16a34a;
+            margin-bottom: 12px;
+        }
+
+        body.dark-mode .recommendation-section h3 {
+            color: #4ade80;
+        }
+
+        .recommendation-text {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        body.dark-mode .recommendation-text {
+            color: #d1d5db;
+        }
+
+        .standards-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        body.dark-mode .standards-box {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: #1e40af;
+        }
+
+        .standards-text {
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        body.dark-mode .standards-text {
+            color: #93c5fd;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 24px;
+        }
+
+        body.dark-mode .footer {
+            color: #9ca3af;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .risk-overview {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
-    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-2xl p-8">
-        <div class="flex items-center gap-3 mb-6">
-            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
-            <h1 class="text-3xl font-bold text-gray-800">Password Strength Analyzer</h1>
-        </div>
-        
-        <p class="text-gray-600 mb-6">
-            Test your password security and learn how to create stronger passwords.
-        </p>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                Enter Password to Analyze
-            </label>
-            <div class="relative">
-                <input
-                    type="password"
-                    id="passwordInput"
-                    placeholder="Type your password here..."
-                    class="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg"
-                />
-                <button
-                    id="togglePassword"
-                    class="absolute right-3 top-1/2 text-gray-500 hover:text-gray-700"
-                    style="transform: translateY(-50%);"
-                >
-                    <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card">
+            <div class="header">
+                <div class="header-content">
+                    <svg class="header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
+                    <div>
+                        <h1>Password Policy Evaluation & Authentication Risk Analysis</h1>
+                        <p class="subtitle">Defensive Security Tool - Client-Side Analysis Only</p>
+                    </div>
+                </div>
+                <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+                    <span id="theme-icon">🌙</span>
                 </button>
             </div>
+
+            <div class="info-box">
+                <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="info-text">
+                    <strong>Security Notice:</strong> All analysis occurs locally in your browser. No passwords are transmitted, stored, or logged. This tool is designed for defensive security awareness and policy evaluation.
+                </p>
+            </div>
         </div>
 
-        <div id="resultsSection" class="hidden space-y-6">
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-gray-700">Strength</span>
-                    <span id="strengthLabel" class="text-sm font-bold"></span>
-                </div>
-                <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="strengthBar" class="h-full strength-bar"></div>
+        <!-- Input Section -->
+        <div class="card">
+            <div class="input-group">
+                <label for="password-input">
+                    <svg style="display: inline; width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Enter Password for Analysis
+                </label>
+                <div class="input-wrapper">
+                    <input type="password" id="password-input" placeholder="Type password to analyze..." oninput="analyzePassword()">
+                    <button class="toggle-visibility" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                        <svg id="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <span class="font-semibold text-gray-800">Time to Crack</span>
+            <div class="slider-group">
+                <label for="gpu-speed">GPU Attack Speed: <span id="gpu-speed-value">10</span> Billion attempts/sec</label>
+                <input type="range" id="gpu-speed" min="1" max="100" value="10" oninput="updateGpuSpeed(this.value)">
+                <p class="slider-label">Modern GPU clusters (RTX 4090, A100) achieve 10-100 billion NTLM hashes/sec</p>
+            </div>
+        </div>
+
+        <!-- Analysis Results Container -->
+        <div id="analysis-results" class="hidden">
+            <!-- Risk Overview -->
+            <div class="card">
+                <h2>Authentication Risk Assessment</h2>
+                <div class="risk-overview">
+                    <div>
+                        <div class="risk-level">
+                            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <span class="risk-level-text" id="risk-level">Low Risk</span>
+                        </div>
+                        <ul class="metric-list" id="metric-list"></ul>
+                    </div>
+                    <div>
+                        <h3>Character Diversity</h3>
+                        <ul class="metric-list" id="diversity-list"></ul>
+                    </div>
                 </div>
-                <p id="crackTime" class="text-2xl font-bold text-gray-900"></p>
-                <p class="text-xs text-gray-500 mt-1">
-                    Estimated time using modern GPU (10B attempts/sec)
+                <div id="pattern-warning" class="warning-box hidden">
+                    <h4 class="warning-title">⚠️ Predictable Patterns Detected</h4>
+                    <div id="pattern-content" class="warning-text"></div>
+                </div>
+            </div>
+
+            <!-- Time to Crack -->
+            <div class="card">
+                <h2>Time-to-Crack Estimation</h2>
+                <div class="time-grid">
+                    <div class="time-card">
+                        <h3>CPU Brute Force (1M attempts/sec)</h3>
+                        <p class="time-value" id="cpu-time">-</p>
+                        <p class="time-description">Single-threaded CPU attack scenario</p>
+                    </div>
+                    <div class="time-card">
+                        <h3>GPU Brute Force (<span id="gpu-display">10</span>B attempts/sec)</h3>
+                        <p class="time-value" id="gpu-time">-</p>
+                        <p class="time-description">Modern GPU cluster attack scenario</p>
+                    </div>
+                </div>
+                <p class="note-text">
+                    <strong>Note:</strong> These estimates assume average-case scenarios (50% keyspace search) and optimal hashing algorithms. Actual crack time depends on hash algorithm (bcrypt, Argon2 add significant computational cost), salt presence, and attacker resources.
                 </p>
             </div>
 
-            <div>
-                <h3 class="font-semibold text-gray-800 mb-3">Security Requirements</h3>
-                <div class="grid gap-2" id="checksList"></div>
+            <!-- Attack Techniques -->
+            <div class="card">
+                <h2>Attack Technique Mapping</h2>
+                <p class="note-text" style="margin-bottom: 16px;">
+                    Based on identified weaknesses, this password is vulnerable to the following attack techniques:
+                </p>
+                <div id="techniques-container"></div>
             </div>
 
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 class="font-semibold text-blue-900 mb-2">Security Tips</h4>
-                <ul class="text-sm text-blue-800 space-y-1">
-                    <li>Use a unique password for each account</li>
-                    <li>Consider using a passphrase</li>
-                    <li>Enable two-factor authentication when available</li>
-                    <li>Use a password manager to store complex passwords</li>
-                    <li>Never share your passwords via email or text</li>
-                </ul>
+            <!-- Recommendations -->
+            <div class="card">
+                <h2>Security Recommendations</h2>
+                
+                <div class="recommendation-section">
+                    <h3>✓ Use Passphrases Instead of Passwords</h3>
+                    <p class="recommendation-text">
+                        NIST SP 800-63B recommends passphrases (e.g., "correct-horse-battery-staple"). 4-5 random words provide high entropy while remaining memorable. Minimum 15 characters recommended.
+                    </p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h3>✓ Enable Multi-Factor Authentication (MFA)</h3>
+                    <p class="recommendation-text">
+                        MFA significantly reduces account takeover risk even if credentials are compromised. Prefer authenticator apps or hardware tokens over SMS-based verification.
+                    </p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h3>✓ Use a Password Manager</h3>
+                    <p class="recommendation-text">
+                        Password managers generate and store unique, high-entropy passwords for each service, eliminating credential reuse vulnerabilities that enable credential stuffing attacks.
+                    </p>
+                </div>
+
+                <div class="recommendation-section">
+                    <h3>✓ Implement Account Monitoring</h3>
+                    <p class="recommendation-text">
+                        Enable login alerts, review access logs regularly, and check if credentials appear in breach databases (haveibeenpwned.com). Implement rate limiting and account lockout policies on authentication endpoints.
+                    </p>
+                </div>
+
+                <div class="standards-box">
+                    <p class="standards-text">
+                        <strong>Standards Alignment:</strong> This tool's recommendations align with NIST SP 800-63B (Digital Identity Guidelines) and OWASP Authentication Cheat Sheet best practices.
+                    </p>
+                </div>
             </div>
         </div>
 
-        <div id="emptyState" class="text-center py-12 text-gray-400">
-            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
-            <p>Enter a password above to see its strength analysis</p>
-        </div>
-
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <p class="text-xs text-gray-500 text-center">
-                Your password is never stored or transmitted. All analysis happens locally in your browser.
-            </p>
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Disclaimer:</strong> This tool is for educational and defensive security purposes only. It demonstrates authentication risk analysis and password policy evaluation.</p>
+            <p>Not intended for offensive security operations or unauthorized access attempts. Always follow responsible disclosure and ethical security practices.</p>
         </div>
     </div>
 
     <script>
-        var passwordInput = document.getElementById('passwordInput');
-        var togglePassword = document.getElementById('togglePassword');
-        var resultsSection = document.getElementById('resultsSection');
-        var emptyState = document.getElementById('emptyState');
-        var strengthBar = document.getElementById('strengthBar');
-        var strengthLabel = document.getElementById('strengthLabel');
-        var crackTime = document.getElementById('crackTime');
-        var checksList = document.getElementById('checksList');
+        // Common passwords database (subset for demonstration)
+        const COMMON_PASSWORDS = [
+            'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', '1234567',
+            'letmein', 'trustno1', 'dragon', 'baseball', 'iloveyou', 'master', 'sunshine',
+            'ashley', 'bailey', 'passw0rd', 'shadow', '123123', '654321', 'superman',
+            'qazwsx', 'michael', 'football', 'password1', 'welcome', 'admin', 'login'
+        ];
 
-        var commonPasswords = ['password', '123456', 'qwerty', 'abc123', 'password123', 'admin', 'letmein', 'welcome', '12345678', 'iloveyou'];
-        var sequential = ['abc', '123', 'xyz', '012', '234', '345', '456', '567', '678', '789'];
+        let gpuSpeed = 10;
+        let debounceTimer;
 
-        togglePassword.addEventListener('click', function() {
-            var type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-        });
-
-        passwordInput.addEventListener('input', function(e) {
-            var password = e.target.value;
-            
-            if (password.length === 0) {
-                resultsSection.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            resultsSection.classList.remove('hidden');
-            analyzePassword(password);
-        });
-
-        function analyzePassword(pwd) {
-            var checks = {
-                length: pwd.length >= 12,
-                uppercase: /[A-Z]/.test(pwd),
-                lowercase: /[a-z]/.test(pwd),
-                numbers: /[0-9]/.test(pwd),
-                special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
-                noCommon: checkNoCommon(pwd),
-                noSequential: checkNoSequential(pwd)
-            };
-
-            var score = calculateScore(pwd, checks);
-            var strength = getStrengthLevel(score);
-            
-            updateUI(strength, checks, pwd);
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
-        function checkNoCommon(pwd) {
-            var lower = pwd.toLowerCase();
-            for (var i = 0; i < commonPasswords.length; i++) {
-                if (lower.indexOf(commonPasswords[i]) !== -1) {
-                    return false;
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password-input');
+            const icon = document.getElementById('eye-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>';
+            }
+        }
+
+        // Update GPU speed
+        function updateGpuSpeed(value) {
+            gpuSpeed = parseInt(value);
+            document.getElementById('gpu-speed-value').textContent = value;
+            document.getElementById('gpu-display').textContent = value;
+            analyzePassword();
+        }
+
+        // Calculate entropy
+        function calculateEntropy(password) {
+            let charsetSize = 0;
+            if (/[a-z]/.test(password)) charsetSize += 26;
+            if (/[A-Z]/.test(password)) charsetSize += 26;
+            if (/[0-9]/.test(password)) charsetSize += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) charsetSize += 32;
+            
+            return password.length * Math.log2(charsetSize || 1);
+        }
+
+        // Detect sequential patterns
+        function detectSequential(password) {
+            const sequences = [];
+            for (let i = 0; i < password.length - 2; i++) {
+                const char1 = password.charCodeAt(i);
+                const char2 = password.charCodeAt(i + 1);
+                const char3 = password.charCodeAt(i + 2);
+                
+                if (char2 === char1 + 1 && char3 === char2 + 1) {
+                    sequences.push(password.substring(i, i + 3));
                 }
             }
-            return true;
+            return sequences;
         }
 
-        function checkNoSequential(pwd) {
-            var lower = pwd.toLowerCase();
-            for (var i = 0; i < sequential.length; i++) {
-                if (lower.indexOf(sequential[i]) !== -1) {
-                    return false;
+        // Detect repeated patterns
+        function detectRepeated(password) {
+            const repeats = password.match(/(.)\1{2,}/g) || [];
+            return repeats;
+        }
+
+        // Calculate time to crack
+        function calculateCrackTime(entropy, attemptsPerSec) {
+            const totalCombinations = Math.pow(2, entropy);
+            const seconds = totalCombinations / (attemptsPerSec * 1e9) / 2;
+            
+            if (seconds < 1) return { value: (seconds * 1000).toExponential(2), unit: 'milliseconds', severity: 'critical' };
+            if (seconds < 60) return { value: seconds.toExponential(2), unit: 'seconds', severity: 'critical' };
+            if (seconds < 3600) return { value: (seconds / 60).toExponential(2), unit: 'minutes', severity: 'high' };
+            if (seconds < 86400) return { value: (seconds / 3600).toExponential(2), unit: 'hours', severity: 'high' };
+            if (seconds < 31536000) return { value: (seconds / 86400).toExponential(2), unit: 'days', severity: 'medium' };
+            return { value: (seconds / 31536000).toExponential(2), unit: 'years', severity: 'low' };
+        }
+
+        // Map attack techniques
+        function mapAttackTechniques(password, entropy, isCommon, sequential, repeated) {
+            const techniques = [];
+            
+            if (isCommon) {
+                techniques.push({
+                    name: 'Dictionary Attack',
+                    risk: 'Critical',
+                    description: 'Password exists in common password databases. Attackers use pre-compiled lists of known passwords.',
+                    mitre: 'T1110.002',
+                    impact: 'Immediate account compromise through automated credential stuffing'
+                });
+            }
+            
+            if (entropy < 40) {
+                techniques.push({
+                    name: 'Brute Force Attack',
+                    risk: entropy < 28 ? 'Critical' : 'High',
+                    description: 'Low complexity allows systematic enumeration of all possible combinations.',
+                    mitre: 'T1110.001',
+                    impact: 'Account takeover within feasible timeframe using GPU clusters'
+                });
+            }
+            
+            if (sequential.length > 0 || repeated.length > 0) {
+                techniques.push({
+                    name: 'Rule-Based Cracking',
+                    risk: 'High',
+                    description: 'Predictable patterns reduce effective keyspace. Tools like Hashcat use pattern-aware algorithms.',
+                    mitre: 'T1110.002',
+                    impact: 'Significantly reduced crack time compared to pure brute force'
+                });
+            }
+            
+            if (password.length < 12 || isCommon) {
+                techniques.push({
+                    name: 'Credential Stuffing',
+                    risk: 'High',
+                    description: 'Weak/common passwords likely reused across services. Breached credentials used against other platforms.',
+                    mitre: 'T1110.004',
+                    impact: 'Lateral movement across user accounts, privilege escalation if admin credentials'
+                });
+            }
+            
+            return techniques;
+        }
+
+        // Calculate risk level
+        function calculateRiskLevel(entropy, isCommon) {
+            if (isCommon) return { level: 'Critical', color: 'risk-critical' };
+            if (entropy < 28) return { level: 'Critical', color: 'risk-critical' };
+            if (entropy < 40) return { level: 'High', color: 'risk-high' };
+            if (entropy < 60) return { level: 'Medium', color: 'risk-medium' };
+            return { level: 'Low', color: 'risk-low' };
+        }
+
+        // Main analysis function
+        function analyzePassword() {
+            clearTimeout(debounceTimer);
+            
+            debounceTimer = setTimeout(() => {
+                const password = document.getElementById('password-input').value;
+                const resultsContainer = document.getElementById('analysis-results');
+                
+                if (!password) {
+                    resultsContainer.classList.add('hidden');
+                    return;
                 }
-            }
-            return true;
-        }
-
-        function calculateScore(pwd, checks) {
-            var score = 0;
-            
-            if (pwd.length >= 8) score += 10;
-            if (pwd.length >= 12) score += 15;
-            if (pwd.length >= 16) score += 10;
-            
-            if (checks.uppercase) score += 10;
-            if (checks.lowercase) score += 10;
-            if (checks.numbers) score += 10;
-            if (checks.special) score += 15;
-            if (checks.noCommon) score += 15;
-            if (checks.noSequential) score += 10;
-            
-            var chars = pwd.split('');
-            var uniqueChars = {};
-            for (var i = 0; i < chars.length; i++) {
-                uniqueChars[chars[i]] = true;
-            }
-            var uniqueCount = 0;
-            for (var key in uniqueChars) {
-                if (uniqueChars.hasOwnProperty(key)) {
-                    uniqueCount++;
-                }
-            }
-            score += Math.min(uniqueCount * 2, 20);
-            
-            return Math.min(score, 100);
-        }
-
-        function getStrengthLevel(score) {
-            if (score < 30) return { level: 'Very Weak', color: 'bg-red-500', textColor: 'text-red-600', width: '20%' };
-            if (score < 50) return { level: 'Weak', color: 'bg-orange-500', textColor: 'text-orange-600', width: '40%' };
-            if (score < 70) return { level: 'Fair', color: 'bg-yellow-500', textColor: 'text-yellow-600', width: '60%' };
-            if (score < 85) return { level: 'Strong', color: 'bg-blue-500', textColor: 'text-blue-600', width: '80%' };
-            return { level: 'Very Strong', color: 'bg-green-500', textColor: 'text-green-600', width: '100%' };
-        }
-
-        function estimateCrackTime(pwd, checks) {
-            var charset = 0;
-            if (checks.lowercase) charset += 26;
-            if (checks.uppercase) charset += 26;
-            if (checks.numbers) charset += 10;
-            if (checks.special) charset += 32;
-            
-            if (charset === 0) return 'Instantly';
-            
-            var combinations = Math.pow(charset, pwd.length);
-            var attemptsPerSec = 1e10;
-            var seconds = combinations / attemptsPerSec;
-            
-            if (seconds < 1) return 'Instantly';
-            if (seconds < 60) return Math.round(seconds) + ' seconds';
-            if (seconds < 3600) return Math.round(seconds / 60) + ' minutes';
-            if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
-            if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
-            if (seconds < 31536000 * 100) return Math.round(seconds / 31536000) + ' years';
-            return 'Centuries+';
-        }
-
-        function updateUI(strength, checks, pwd) {
-            strengthBar.className = 'h-full strength-bar ' + strength.color;
-            strengthBar.style.width = strength.width;
-            strengthLabel.className = 'text-sm font-bold ' + strength.textColor;
-            strengthLabel.textContent = strength.level;
-            crackTime.textContent = estimateCrackTime(pwd, checks);
-
-            var checksData = [
-                { passed: checks.length, text: 'At least 12 characters long' },
-                { passed: checks.uppercase, text: 'Contains uppercase letters (A-Z)' },
-                { passed: checks.lowercase, text: 'Contains lowercase letters (a-z)' },
-                { passed: checks.numbers, text: 'Contains numbers (0-9)' },
-                { passed: checks.special, text: 'Contains special characters' },
-                { passed: checks.noCommon, text: 'Not a common password' },
-                { passed: checks.noSequential, text: 'No sequential characters' }
-            ];
-
-            var html = '';
-            for (var i = 0; i < checksData.length; i++) {
-                var check = checksData[i];
-                html += '<div class="flex items-center gap-2 text-sm">';
-                if (check.passed) {
-                    html += '<svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-                    html += '<span class="text-gray-700">' + check.text + '</span>';
+                
+                resultsContainer.classList.remove('hidden');
+                
+                // Calculate metrics
+                const entropy = calculateEntropy(password);
+                const isCommon = COMMON_PASSWORDS.includes(password.toLowerCase());
+                const sequential = detectSequential(password);
+                const repeated = detectRepeated(password);
+                const cpuCrackTime = calculateCrackTime(entropy, 0.001);
+                const gpuCrackTime = calculateCrackTime(entropy, gpuSpeed);
+                const attackTechniques = mapAttackTechniques(password, entropy, isCommon, sequential, repeated);
+                const risk = calculateRiskLevel(entropy, isCommon);
+                
+                const hasLower = /[a-z]/.test(password);
+                const hasUpper = /[A-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+                
+                // Update risk level
+                const riskLevelEl = document.getElementById('risk-level');
+                riskLevelEl.textContent = risk.level + ' Risk';
+                riskLevelEl.className = 'risk-level-text ' + risk.color;
+                
+                // Update metrics
+                const metricList = document.getElementById('metric-list');
+                metricList.innerHTML = `
+                    <li class="metric-item">
+                        <svg class="metric-icon ${isCommon ? 'x-icon' : 'check-icon'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isCommon ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7'}"></path>
+                        </svg>
+                        <span>${isCommon ? 'Found in common password list' : 'Not in common password database'}</span>
+                    </li>
+                    <li class="metric-item">
+                        <svg class="metric-icon ${password.length >= 16 ? 'check-icon' : 'warn-icon'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${password.length >= 16 ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'}"></path>
+                        </svg>
+                        <span>Length: ${password.length} characters (NIST recommends 15+ for user-chosen passwords)</span>
+                    </li>
+                    <li class="metric-item">
+                        <svg class="metric-icon ${entropy >= 60 ? 'check-icon' : 'warn-icon'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${entropy >= 60 ? 'M5 13l4 4L19 7' : 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'}"></path>
+                        </svg>
+                        <span>Entropy: ${entropy.toFixed(2)} bits (60+ bits recommended)</span>
+                    </li>
+                `;
+                
+                // Update diversity
+                const diversityList = document.getElementById('diversity-list');
+                diversityList.innerHTML = `
+                    <li class="metric-item">
+                        ${hasLower ? 
+                            '<svg class="metric-icon check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                            '<span style="color: #9ca3af; margin-right: 4px;">○</span>'}
+                        <span>Lowercase letters</span>
+                    </li>
+                    <li class="metric-item">
+                        ${hasUpper ? 
+                            '<svg class="metric-icon check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                            '<span style="color: #9ca3af; margin-right: 4px;">○</span>'}
+                        <span>Uppercase letters</span>
+                    </li>
+                    <li class="metric-item">
+                        ${hasNumber ? 
+                            '<svg class="metric-icon check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                            '<span style="color: #9ca3af; margin-right: 4px;">○</span>'}
+                        <span>Numbers</span>
+                    </li>
+                    <li class="metric-item">
+                        ${hasSpecial ? 
+                            '<svg class="metric-icon check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                            '<span style="color: #9ca3af; margin-right: 4px;">○</span>'}
+                        <span>Special characters</span>
+                    </li>
+                `;
+                
+                // Update pattern warning
+                const patternWarning = document.getElementById('pattern-warning');
+                const patternContent = document.getElementById('pattern-content');
+                if (sequential.length > 0 || repeated.length > 0) {
+                    patternWarning.classList.remove('hidden');
+                    let content = '';
+                    if (sequential.length > 0) {
+                        content += `<p>Sequential characters: ${sequential.join(', ')}</p>`;
+                    }
+                    if (repeated.length > 0) {
+                        content += `<p>Repeated characters: ${repeated.join(', ')}</p>`;
+                    }
+                    patternContent.innerHTML = content;
                 } else {
-                    html += '<svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                    html += '<span class="text-gray-400">' + check.text + '</span>';
+                    patternWarning.classList.add('hidden');
                 }
-                html += '</div>';
-            }
-            checksList.innerHTML = html;
+                
+                // Update crack times
+                document.getElementById('cpu-time').textContent = `${cpuCrackTime.value} ${cpuCrackTime.unit}`;
+                document.getElementById('gpu-time').textContent = `${gpuCrackTime.value} ${gpuCrackTime.unit}`;
+                
+                // Update attack techniques
+                const techniquesContainer = document.getElementById('techniques-container');
+                techniquesContainer.innerHTML = attackTechniques.map(tech => `
+                    <div class="technique-card">
+                        <div class="technique-header">
+                            <h3>${tech.name}</h3>
+                            <span class="risk-badge badge-${tech.risk.toLowerCase()}">${tech.risk} Risk</span>
+                        </div>
+                        <p class="technique-description">${tech.description}</p>
+                        <p class="technique-meta">
+                            <strong>MITRE ATT&CK:</strong> ${tech.mitre} | <strong>Impact:</strong> ${tech.impact}
+                        </p>
+                    </div>
+                `).join('');
+                
+            }, 300);
         }
     </script>
 </body>

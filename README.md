@@ -119,8 +119,8 @@ MIT License - Free to use for educational purposes
 
 **CypherOne**
 - GitHub: [@cypher1ne](https://github.com/Cypher1ne)
-- LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/soumitra-patra-a72102368/)
-- Portfolio: [Your Portfolio](https://cypher1ne.github.io/Portfolio/)
+- LinkedIn: [@soumitra](https://www.linkedin.com/in/soumitra-patra-a72102368/)
+- Portfolio: [Website](https://cypher1ne.github.io/Portfolio/)
 
 **Aspiring Cybersecurity Analyst | SOC Operations | Defensive Security**
 

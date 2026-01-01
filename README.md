@@ -118,9 +118,9 @@ MIT License - Free to use for educational purposes
 ## 👤 Author
 
 **[Your Name]**
-- GitHub: [@YOUR-USERNAME](https://github.com/YOUR-USERNAME)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/your-profile)
-- Portfolio: [Your Portfolio](https://your-website.com)
+- GitHub: [@cypher1ne](https://github.com/Cypher1ne)
+- LinkedIn: [Your LinkedIn](https://www.linkedin.com/in/soumitra-patra-a72102368/)
+- Portfolio: [Your Portfolio](https://cypher1ne.github.io/Portfolio/)
 
 **Aspiring Cybersecurity Analyst | SOC Operations | Defensive Security**
 
@@ -134,8 +134,3 @@ MIT License - Free to use for educational purposes
 ---
 
 **⭐ If this tool helped you understand authentication security, please star the repository!**
-
-## 📊 Project Stats
-
-![GitHub Stars](https://img.shields.io/github/stars/YOUR-USERNAME/password-security-analyzer?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/YOUR-USERNAME/password-security-analyzer?style=social)

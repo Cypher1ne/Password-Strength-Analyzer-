@@ -76,7 +76,7 @@ This tool follows security best practices from:
 ## 💻 Local Development
 ```bash
 # Clone repository
-git clone https://github.com/YOUR-USERNAME/password-security-analyzer.git
+git clone https://github.com/Cypher1ne/Password-Policy-Evaluation-and-Authenttication-Risk-Analysis-Tool.git
 
 # Open in browser
 # Just double-click index.html - no installation needed!
